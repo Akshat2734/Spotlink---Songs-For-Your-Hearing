@@ -1,0 +1,2 @@
+process.env.SPOTIFY_CLIENT_ID = '0b4bce1cb5364f589ea2e58f46aee207';
+process.env.SPOTIFY_CLIENT_SECRET = '314826a61a714013be54c48dd6dd1906';
