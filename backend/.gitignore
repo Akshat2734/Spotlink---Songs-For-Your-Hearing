@@ -2,3 +2,6 @@
 
 .config/envSetup.js
 .config/spotifyConfig.js
+
+/server.cert
+/server.key
