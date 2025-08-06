@@ -1,7 +1,0 @@
-/node_modules
-
-.config/envSetup.js
-.config/spotifyConfig.js
-
-/server.cert
-/server.key
