@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import Navbar from '@/components/Navbar';
 import MusicCard from '@/components/MusicCard';
 
 const songData = {
@@ -26,11 +25,6 @@ const songData = {
   albumImageUrl: `https://npr.brightspotcdn.com/dims4/default/f225683/2147483647/strip/true/crop/1623x912+0+0/resize/880x494!/quality/90/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Flegacy%2Fimages%2Fnews%2FSFKART_COURTESYOFCITYOFSFK.jpg`,
 };
 
-const userData = {
-  name: "Jane Spoonfighter",
-  avatarUrl: "https://npr.brightspotcdn.com/dims4/default/f225683/2147483647/strip/true/crop/1623x912+0+0/resize/880x494!/quality/90/?url=http%3A%2F%2Fnpr-brightspot.s3.amazonaws.com%2Flegacy%2Fimages%2Fnews%2FSFKART_COURTESYOFCITYOFSFK.jpg"
-};
-
 export default function SongCard() {
   const handleChoice = (choice) => {
     console.log(`You chose: ${choice}`);
@@ -39,7 +33,6 @@ export default function SongCard() {
 
   return (
     <div className="bg-gray-900 min-h-screen font-sans">
-      <Navbar user={userData} />
       <main className="flex flex-col items-center justify-center min-h-screen pt-22 pb-12 px-4 ">
         <MusicCard song={songData} />
         <div className="flex items-center justify-center space-x-8 mt-8">
