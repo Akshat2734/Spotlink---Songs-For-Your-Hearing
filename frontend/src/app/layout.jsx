@@ -1,14 +1,10 @@
 // app/layout.jsx
-import { createTheme, MantineProvider } from '@mantine/core';
+import { createTheme } from '@mantine/core';
 import '@mantine/core/styles.css';
 import './globals.css';
 import { AuthProvider } from "@/context/AuthContext";
 import { Inter } from "next/font/google";
 import Navbar from '@/components/Navbar'; // Make sure this path is correct
-
-const theme = createTheme({
-  colorScheme: "dark"
-});
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,12 +17,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
-          <MantineProvider theme={theme} defaultColorScheme='dark'>
+        <AuthProvider>          
+          
             {/* The Navbar is now part of the layout */}
-            <Navbar />
-            {children}
-          </MantineProvider>
+          <Navbar />
+          {children}          
         </AuthProvider>
       </body>
     </html>
