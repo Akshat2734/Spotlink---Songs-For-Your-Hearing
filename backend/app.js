@@ -1,9 +1,8 @@
 import express from "express";
-import https from "https";
 import authRoutes from "./routes/authRoutes.js";
 import spotifyRoutes from "./routes/spotifyRoutes.js";
 import recommendationRoutes from "./routes/recommendationRoutes.js";
-import { sslOptions } from "./config/spotifyConfig.js";
+import http from "http"; 
 
 const app = express();
 
@@ -12,7 +11,6 @@ app.use(authRoutes);
 app.use(spotifyRoutes);
 app.use(recommendationRoutes);
 
-// Start HTTPS server
-https.createServer(sslOptions, app).listen(8080, () => {
-  console.log("Server running at https://127.0.0.1:8080/login");
+http.createServer(app).listen(8080, () => {
+  console.log("Server running at http://127.0.0.1:8080/login");
 });
