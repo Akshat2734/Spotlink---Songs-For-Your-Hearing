@@ -47,12 +47,35 @@ router.get("/callback", async (req, res) => {
     );
 
     accesstoken = response.data;
-    res.redirect('/topitems');
+    res.redirect("/userprofile")
   } catch (error) {
     console.error(error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to get access token' });
   }
 });
 
+
+router.get("/userprofile", async (req, res) => {
+  try{
+    const response = await axios.get("https://api.spotify.com/v1/me", {
+      headers: {
+        Authorization: "Bearer " + accesstoken.access_token,
+      },
+    });
+    const userformatedprofile = {
+      user_id : response.data.display_name,
+      user_email: response.data.email,
+      user_imageUrl: response.data.images[0]?.url
+    }
+    res.json(userformatedprofile)
+  }
+  catch (error) {
+      console.error(error.response?.data || error.message);
+      res.status(500).json({ error: 'Failed to get access token' });
+    }
+  }
+)
+
+export { userformatedprofile };
 export { accesstoken };
 export default router;
