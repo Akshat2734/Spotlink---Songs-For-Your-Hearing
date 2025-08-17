@@ -47,7 +47,7 @@ router.get("/callback", async (req, res) => {
     );
 
     accesstoken = response.data;
-    res.redirect("/userprofile")
+    res.redirect('http://localhost:3000/')
   } catch (error) {
     console.error(error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to get access token' });
@@ -59,23 +59,33 @@ router.get("/userprofile", async (req, res) => {
   try{
     const response = await axios.get("https://api.spotify.com/v1/me", {
       headers: {
-        Authorization: "Bearer " + accesstoken.access_token,
+      Authorization: "Bearer " + accesstoken.access_token,
       },
-    });
+      });
     const userformatedprofile = {
       user_id : response.data.display_name,
       user_email: response.data.email,
       user_imageUrl: response.data.images[0]?.url
-    }
+      }
     res.json(userformatedprofile)
-  }
+    }
   catch (error) {
-      console.error(error.response?.data || error.message);
-      res.status(500).json({ error: 'Failed to get access token' });
+    console.error(error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to get access token' });
     }
   }
 )
 
-export { userformatedprofile };
+// In backend/routes/authRoutes.js
+router.get("/logout", (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ message: 'Could not log out.' });
+    }
+    res.clearCookie('connect.sid'); // The default session cookie name
+    res.status(200).json({ message: 'Logged out successfully' });
+  });
+});
+
 export { accesstoken };
 export default router;
