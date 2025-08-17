@@ -6,8 +6,7 @@ import generateRandomString from "../utils/generateRandomString.js";
 
 const router = express.Router();
 
-let accesstoken = null;
-
+// The /login route remains the same
 router.get("/login", (req, res) => {
   const state = generateRandomString(16);
   const scope = 'user-read-private user-read-email user-top-read';
@@ -24,11 +23,6 @@ router.get("/login", (req, res) => {
 
 router.get("/callback", async (req, res) => {
   const code = req.query.code || null;
-  const state = req.query.state || null;
-
-  if (!state) {
-    return res.redirect('/#' + querystring.stringify({ error: 'state_mismatch' }));
-  }
 
   try {
     const response = await axios.post(
@@ -46,46 +40,62 @@ router.get("/callback", async (req, res) => {
       }
     );
 
-    accesstoken = response.data;
-    res.redirect('http://localhost:3000/')
+    // Store the access token in the user's session
+    req.session.data = response.data.access_token;
+    console.log(req.session.data)
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+        return res.redirect('http://localhost:3000/?error=session_failed');
+      }
+      
+      // Redirect back to the frontend dashboard ONLY after the session is saved.
+      console.log('Session saved successfully. Redirecting to frontend.');
+      res.redirect('http://localhost:3000/'); // Redirect to dashboard to trigger a re-fetch
+    });
+    
   } catch (error) {
     console.error(error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to get access token' });
+    res.redirect('http://localhost:3000/?error=auth_failed');
   }
 });
 
-
+// An API endpoint for the frontend to get user profile data
 router.get("/userprofile", async (req, res) => {
-  try{
+  if (!req.session.data) {
+    console.log("this is the issue")
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  else{console.log("done")}
+  try {
     const response = await axios.get("https://api.spotify.com/v1/me", {
       headers: {
-      Authorization: "Bearer " + accesstoken.access_token,
+        Authorization: "Bearer " + req.session.data,
       },
-      });
-    const userformatedprofile = {
+    });
+
+    const userData = {
       user_id : response.data.display_name,
       user_email: response.data.email,
       user_imageUrl: response.data.images[0]?.url
-      }
-    res.json(userformatedprofile)
     }
-  catch (error) {
+    res.json(userData)
+    console.log(userData)
+  } catch (error) {
     console.error(error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to get access token' });
-    }
+    res.status(500).json({ error: 'Failed to get user profile' });
   }
-)
+});
 
-// In backend/routes/authRoutes.js
+// A route to handle logout
 router.get("/logout", (req, res) => {
   req.session.destroy(err => {
     if (err) {
       return res.status(500).json({ message: 'Could not log out.' });
     }
-    res.clearCookie('connect.sid'); // The default session cookie name
+    res.clearCookie('connect.sid');
     res.status(200).json({ message: 'Logged out successfully' });
   });
 });
 
-export { accesstoken };
 export default router;

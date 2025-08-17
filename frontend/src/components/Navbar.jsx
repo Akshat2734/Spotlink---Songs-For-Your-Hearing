@@ -160,7 +160,7 @@ const Navbar = () => {
               </div>
             ) : (
               <button 
-                onClick={login}
+                onClick= {login} 
                 className="bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 px-5 rounded-full transition-colors"
               >
                 Log In
