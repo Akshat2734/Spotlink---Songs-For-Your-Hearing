@@ -10,17 +10,19 @@ import cors from "cors"
 const app = express();
 dotenv.config();
 
-app.use(session({
-  secret: process.env.SESSION_SECRET,
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }//this is for http server
-}))
-
 app.use(cors({
   origin: 'http://localhost:3000', // Allow only your frontend to connect
   credentials: true // This is important for sessions/cookies
 }));
+
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: false,
+    sameSite: "none"  // Set to true if you are using HTTPS in production
+}}))
 
 // Mount route handlers
 app.use(authRoutes);
