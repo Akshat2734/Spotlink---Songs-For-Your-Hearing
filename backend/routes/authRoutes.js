@@ -6,7 +6,6 @@ import generateRandomString from "../utils/generateRandomString.js";
 
 const router = express.Router();
 
-// The /login route remains the same
 router.get("/login", (req, res) => {
   const state = generateRandomString(16);
   const scope = 'user-read-private user-read-email user-top-read';
@@ -16,14 +15,15 @@ router.get("/login", (req, res) => {
       client_id,
       scope,
       redirect_uri,
-      state
+      state,
+      show_dialog: true
     })
   );
 });
 
 router.get("/callback", async (req, res) => {
   const code = req.query.code || null;
-
+  
   try {
     const response = await axios.post(
       'https://accounts.spotify.com/api/token',
@@ -39,55 +39,52 @@ router.get("/callback", async (req, res) => {
         }
       }
     );
-
-    // Store the access token in the user's session
-    req.session.data = response.data.access_token;
-    console.log(req.session.data)
+    // Store the token in the session
+    req.session.accessToken = response.data.access_token;
     req.session.save((err) => {
       if (err) {
         console.error('Session save error:', err);
-        return res.redirect('http://localhost:3000/?error=session_failed');
+        return res.redirect('http://127.0.0.1:3000/err');
       }
       
       // Redirect back to the frontend dashboard ONLY after the session is saved.
       console.log('Session saved successfully. Redirecting to frontend.');
-      res.redirect('http://localhost:3000/'); // Redirect to dashboard to trigger a re-fetch
+      res.redirect('http://127.0.0.1:3000/'); 
     });
-    
   } catch (error) {
     console.error(error.response?.data || error.message);
-    res.redirect('http://localhost:3000/?error=auth_failed');
+    res.redirect('http://127.0.0.1:3000/err');
   }
 });
 
-// An API endpoint for the frontend to get user profile data
 router.get("/userprofile", async (req, res) => {
-  if (!req.session.data) {
-    console.log("this is the issue")
+  console.log('Backend: /userprofile hit. Session:', req.session.accessToken); // Debugging line
+  
+  if (!req.session.accessToken) {
+    console.error('Backend: No accessToken found in session.');
     return res.status(401).json({ error: 'Not authenticated' });
   }
-  else{console.log("done")}
+
   try {
     const response = await axios.get("https://api.spotify.com/v1/me", {
       headers: {
-        Authorization: "Bearer " + req.session.data,
+        Authorization: "Bearer " + req.session.accessToken,
       },
     });
 
     const userData = {
-      user_id : response.data.display_name,
-      user_email: response.data.email,
-      user_imageUrl: response.data.images[0]?.url
-    }
-    res.json(userData)
-    console.log(userData)
+      name: response.data.display_name,
+      avatarUrl: response.data.images[0]?.url
+    };
+    
+    res.json(userData);
+
   } catch (error) {
     console.error(error.response?.data || error.message);
     res.status(500).json({ error: 'Failed to get user profile' });
   }
 });
 
-// A route to handle logout
 router.get("/logout", (req, res) => {
   req.session.destroy(err => {
     if (err) {

@@ -20,9 +20,11 @@ export async function fetchTopTracks(token) {
 }
 
 export function setSpotifyResponse(data) {
-  spotifyResponse = data;
+  spotifyResponse = data;
+  console.log(spotifyResponse)
 }
 
 export function getSpotifyResponse() {
-  return spotifyResponse;
+  console.log(spotifyResponse)
+  return spotifyResponse;
 }
