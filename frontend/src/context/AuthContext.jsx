@@ -9,18 +9,26 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true); // To prevent UI flicker
 
+  const login = () => {
+    window.location.href = 'http://127.0.0.1:8080/login';
+  };
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8080/userprofile', {
+        const response = await fetch('http://127.0.0.1:8080/userprofile',{
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
           credentials: 'include' // This sends the session cookie to the backend
         });
         
         if (response.ok) {
           const userData = await response.json();
           setUser({
-            name: userData.user_id,
-            avatarUrl: userData.user_imageUrl,
+            name: userData.name,
+            avatarUrl: userData.avatarUrl,
           });
           setIsLoggedIn(true);
         }
@@ -32,10 +40,6 @@ export const AuthProvider = ({ children }) => {
     };
     fetchUser();
   }, []);
-
-  const login = () => {
-    window.location.href = 'http://127.0.0.1:8080/login';
-  };
 
   const logout = async () => {
     try {
